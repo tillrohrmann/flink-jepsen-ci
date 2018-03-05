@@ -1,0 +1,8 @@
+run-tests.log
+DEFAULT_RUN_ID
+FAILED
+id_rsa
+id_rsa.pub
+inventory/inventory
+terraform/terraform.tfvars
+store

@@ -1,0 +1,135 @@
+---
+# This playbook provisions a set of Jepsen nodes, and invokes Jepsen on the control node
+
+- hosts: jepsen_nodes
+  vars:
+    ansible_user: admin
+    ansible_ssh_private_key_file: id_rsa
+    flink_url: http://apache.mirror.iphh.net/flink/flink-1.5.0/flink-1.5.0-bin-hadoop24-scala_2.11.tgz
+    run_count: 5
+    jepsen_home: ../../
+
+  tasks:
+  - name: "Install rsync"
+    apt:
+      name:
+        - rsync
+      update_cache: yes
+    become: yes
+    tags:
+      - packages
+      - rsync
+
+  - name: "Copy ssh private key"
+    copy:
+      src: ./id_rsa
+      dest: ~/.ssh/id_rsa
+      mode: 0400
+    tags:
+      - ssh-key
+
+  - name: "Copy files to controller"
+    synchronize:
+      src: "{{ jepsen_home }}"
+      dest: ~/
+      rsync_opts: [
+        "--no-motd",
+        "--include=aws",
+        "--include=aws/run-tests.sh",
+        "--include=bin",
+        "--include=bin/**",
+        "--include=project.clj",
+        "--include=scripts",
+        "--include=scripts/**",
+        "--include=src",
+        "--include=src/**",
+        "--include=test",
+        "--include=test/**",
+        "--exclude=*"
+      ]
+    when: inventory_hostname in groups['jepsen_controller']
+    tags:
+      - copy
+
+  - name: "Install extra dependencies"
+    apt:
+      name:
+        - awscli
+        - ca-certificates-java
+        - curl
+        - git
+        - gnuplot
+        - libjna-java
+        - software-properties-common
+        - tmux
+        - vim
+        - wget
+      update_cache: yes
+    become: yes
+    tags:
+      - packages
+
+  - name: "Install extra dependencies from backports"
+    apt:
+      name:
+        - openjdk-8-jdk
+        - openjdk-8-jre-headless
+      default_release: jessie-backports
+      update_cache: yes
+    become: yes
+    tags:
+      - java
+      - packages
+
+  - name: "Remove java 7"
+    apt:
+      name:
+        - openjdk-7-jre-headless
+      state: absent
+      purge: yes
+    become: yes
+    tags:
+      - java
+      - packages
+
+  - name: "Download and install leiningen"
+    get_url:
+      url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+      dest: /usr/bin/lein
+      mode: 0555
+    become: yes
+    tags:
+      - lein
+
+  - name: "Run the tests"
+    shell: "~/aws/run-tests.sh {{ run_count }} {{ flink_url }} | tee ~/run-tests.log"
+    when: inventory_hostname in groups['jepsen_controller']
+    register: run_tests
+    ignore_errors: yes
+    tags:
+      - tests
+
+  - name: "Fetch the results"
+    synchronize:
+      mode: pull
+      src: /home/admin/
+      dest: ./
+      rsync_opts: [
+        "--no-motd",
+        "--include=run-tests.log",
+        "--include=store",
+        "--include=store/**",
+        "--exclude=*",
+      ]
+    when: inventory_hostname in groups['jepsen_controller']
+    tags:
+      - fetch
+
+  - name: "Write out tests status"
+    copy:
+      content: "{{ run_tests.rc }}"
+      dest: ./FAILED
+    delegate_to: localhost
+    when: inventory_hostname in groups['jepsen_controller'] and run_tests.rc != 0
+    tags:
+      - failed

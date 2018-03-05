@@ -1,0 +1,10 @@
+[tag_role_jepsen_controller_%%RUN_ID%%]
+
+[tag_role_jepsen_node_%%RUN_ID%%]
+
+[jepsen_controller:children]
+tag_role_jepsen_controller_%%RUN_ID%%
+
+[jepsen_nodes:children]
+tag_role_jepsen_controller_%%RUN_ID%%
+tag_role_jepsen_node_%%RUN_ID%%
