@@ -5,9 +5,10 @@
   vars:
     ansible_user: admin
     ansible_ssh_private_key_file: id_rsa
-    flink_url: http://apache.mirror.iphh.net/flink/flink-1.5.0/flink-1.5.0-bin-hadoop24-scala_2.11.tgz
-    run_count: 5
-    jepsen_home: ../../
+    flink_url: http://apache.mirror.iphh.net/flink/flink-1.5.0/flink-1.5.0-bin-hadoop28-scala_2.11.tgz
+    run_count: 3
+    jepsen_root: "{{ playbook_dir }}/flink/flink-jepsen/"
+    test_suite: yarn-session
 
   tasks:
   - name: "Install rsync"
@@ -28,14 +29,12 @@
     tags:
       - ssh-key
 
-  - name: "Copy files to controller"
+  - name: "Copy Jepsen files to controller"
     synchronize:
-      src: "{{ jepsen_home }}"
+      src: "{{ jepsen_root }}"
       dest: ~/
       rsync_opts: [
         "--no-motd",
-        "--include=aws",
-        "--include=aws/run-tests.sh",
         "--include=bin",
         "--include=bin/**",
         "--include=project.clj",
@@ -45,6 +44,19 @@
         "--include=src/**",
         "--include=test",
         "--include=test/**",
+        "--exclude=*"
+      ]
+    when: inventory_hostname in groups['jepsen_controller']
+    tags:
+      - copy
+
+  - name: "Copy run-tests.sh to controller"
+    synchronize:
+      src: "{{ playbook_dir }}/"
+      dest: ~/
+      rsync_opts: [
+        "--no-motd",
+        "--include=run-tests.sh",
         "--exclude=*"
       ]
     when: inventory_hostname in groups['jepsen_controller']
@@ -102,7 +114,7 @@
       - lein
 
   - name: "Run the tests"
-    shell: "~/aws/run-tests.sh {{ run_count }} {{ flink_url }} | tee ~/run-tests.log"
+    shell: "~/run-tests.sh {{ run_count }} {{ flink_url }} {{ test_suite }}"
     when: inventory_hostname in groups['jepsen_controller']
     register: run_tests
     ignore_errors: yes
@@ -116,7 +128,6 @@
       dest: ./
       rsync_opts: [
         "--no-motd",
-        "--include=run-tests.log",
         "--include=store",
         "--include=store/**",
         "--exclude=*",

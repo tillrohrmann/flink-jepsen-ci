@@ -1,0 +1,73 @@
+env:
+  global:
+  # SECRET_ACCESS_KEY
+  - secure: k4VAeq4uN4dp9fcivqW+1UUEHM/BoJ6k1nRgiSWypMO+904UTNWk1NvBh5iWo7m78Dsqs8UHBtrMOQk3WOC9UTqlbAWJGT03z/bwQYIurc/bSLIdyJJ4NB+08W3vKAOrV31MoL1JTOzDETf+lKhUlJUnOEH9wEnTVUE3sKvtDJ7dr+cqcI+5OSBB6g57bwDP81DeFY3S2o79GGD5rjYPK8hwMIWbqYSLuXoN6tHoBmostjsquZ8N6YhBgBwqHSP+9FBb5GUFSEhQiCu40L/zHbuL+xmAi6rhY7HyICvV+wanMMGgOQellYcLDMGFAU6p3bOy9a3/UnhTR+BanA072ied9do+5H89hZiuZs3QVhO79/dStTct9EtHRvFnqPUsmpy/K/gPlRjncXkU+3iMSlfkDpvbQe2KfD6bEDTevKE3yQG/1k2zQ4Bwz3P7nJZPUrbcNh21O8B6faCc92kP3Q5gDhQmTgrBzMG+z1fERM8PVET0QgHJjRHTzL7XM74E+IvJh+6Kfiypgw38LHOpy/+30cTvnk+C8ITddqy8fE2XuARn59RGDeWB6WDxnim8bCjzVI60MQlQK0VQ8y6fTGUWuEpZfNLXkSpqMXawbqXN24l8B6sOVf421z5dZYQHBvfQARt8l8jUhyW3FZV47D5Id2oM0NSzPCnYHxYIAIs=
+  - ACCESS_KEY_ID=AKIAIZGSQDQ4OBYYUG2Q
+  - ROLE_ARN=arn:aws:iam::750478353943:role/dA-Administrator
+  - AWS_PROFILE=testing
+  - MAVEN_COMPILE_OPTIONS="-T 1C -nsu -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
+
+language: java
+
+install:
+  # Install Terraform
+  - mkdir -p ~/bin
+  - curl -sLo ~/bin/terraform.zip https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
+  - unzip ~/bin/terraform.zip -d ~/bin
+  - export PATH="~/bin:$PATH"
+
+  # Upgrade pip
+  - sudo pip install --upgrade pip
+
+  # Install Ansible
+  - sudo pip install ansible --progress-bar=off
+
+  # Install assume-role tool
+  - sudo apt-get install golang-go
+  - go get -u github.com/remind101/assume-role
+
+  # Install AWS CLI
+  - sudo pip install --upgrade awscli --progress-bar=off
+
+  # Install boto
+  - sudo apt-get remove python-boto
+  - sudo pip install --upgrade boto --progress-bar=off
+
+  # Configure AWS credentials
+  - ./configure-credentials.sh
+
+  # Install maven 3.2.5
+  - wget https://archive.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.zip
+  - unzip -qq apache-maven-3.2.5-bin.zip
+  - rm apache-maven-3.2.5-bin.zip
+  - export M2_HOME=$PWD/apache-maven-3.2.5
+  - export PATH=$M2_HOME/bin:$PATH
+
+jobs:
+  include:
+    #- stage: Build Flink
+    #  script:
+    #    - git clone https://github.com/GJL/flink.git
+    #    - cd flink
+    #    - git checkout FLINK-9004
+    #    - mvn ${MAVEN_COMPILE_OPTIONS} clean package -pl flink-dist -am -DskipTests -Dfast -Dhadoop.version=2.8.3
+    #    - cd flink-dist/target/flink-*-bin/
+    #    - flink_dist=flink-${TRAVIS_BUILD_NUMBER}.tgz
+    #    - tar czf ${flink_dist} flink-*
+    #    - eval $(assume-role testing)
+    #    - aws s3 cp $flink_dist s3://flink-dists-204087123 --acl public-read
+    - stage: Jepsen
+      env:
+        - TEST_SUITE=yarn-session
+      script:
+        - ./travis-run-tests.sh
+    - stage: Jepsen
+      env:
+        - TEST_SUITE=yarn-job
+      script:
+        - ./travis-run-tests.sh
+    - stage: Jepsen
+      env:
+        - TEST_SUITE=mesos-session
+      script:
+        - ./travis-run-tests.sh

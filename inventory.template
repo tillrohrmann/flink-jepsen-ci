@@ -1,3 +1,6 @@
+[all:vars]
+ansible_ssh_common_args='-o ConnectionAttempts=30'
+
 [tag_role_jepsen_controller_%%RUN_ID%%]
 
 [tag_role_jepsen_node_%%RUN_ID%%]

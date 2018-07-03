@@ -17,7 +17,37 @@
 # limitations under the License.
 ################################################################################
 
-common_jepsen_args=(--nodes-file ~/nodes
---username admin)
+set -euo pipefail
 
-. scripts/run-tests.sh ${1} ${2} 10
+common_jepsen_args+=(--ha-storage-dir hdfs:///flink
+--job-jar bin/DataStreamAllroundTestProgram.jar
+--job-args "--environment.parallelism 10 --state_backend.checkpoint_directory hdfs:///checkpoints --state_backend rocks --state_backend.rocks.incremental true"
+--nodes-file ~/nodes
+--tarball ${2}
+--username admin
+--ssh-private-key ~/.ssh/id_rsa)
+
+for i in $(seq 1 ${1})
+do
+	echo "Executing run #${i} of ${1}"
+	case $3 in
+	    yarn-session)
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen kill-task-managers --deployment-mode yarn-session
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen kill-job-managers --deployment-mode yarn-session
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen fail-name-node-during-recovery --deployment-mode yarn-session
+	        ;;
+        yarn-job)
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen kill-task-managers --deployment-mode yarn-job
+	        ;;
+        mesos-session)
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen kill-task-managers --deployment-mode mesos-session
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen kill-job-managers --deployment-mode mesos-session
+	        lein run test "${common_jepsen_args[@]}" --nemesis-gen fail-name-node-during-recovery --deployment-mode mesos-session
+	        ;;
+	    ?)
+	        echo "Unknown test suite: $3"
+	        exit 1
+	        ;;
+	esac
+	echo
+done

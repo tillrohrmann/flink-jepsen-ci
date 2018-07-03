@@ -2,7 +2,7 @@ DEFAULT_RUN_ID_GEN = $(shell openssl rand -base64 6 | base64)
 
 .PHONY: ansible
 ansible: cleanup ansible-inventory
-	ansible-playbook -i inventory --extra-vars=run_id=$(or $(RUN_ID),$(shell cat DEFAULT_RUN_ID)) $(ARGS) playbook.yml
+	eval $$(assume-role testing); ansible-playbook -i inventory --extra-vars="run_id=$(or $(RUN_ID),$(shell cat DEFAULT_RUN_ID)) $(EXTRA_VARS)" $(ARGS) playbook.yml
 
 .PHONY: ansible-inventory
 ansible-inventory:
@@ -15,7 +15,7 @@ ansible-with-destroy:
 
 .PHONY: apply
 apply:
-	terraform apply -auto-approve -var 'run_id=$(or $(RUN_ID),$(shell cat DEFAULT_RUN_ID))' terraform
+	eval $$(assume-role testing); terraform apply -auto-approve -var 'run_id=$(or $(RUN_ID),$(shell cat DEFAULT_RUN_ID))' terraform
 
 .PHONY: apply-with-destroy
 apply-with-destroy:
@@ -23,11 +23,11 @@ apply-with-destroy:
 
 .PHONY: cleanup
 cleanup:
-	@rm -Rf FAILED store run-tests.log
+	@rm -Rf FAILED store
 
 .PHONY: destroy
 destroy:
-	terraform destroy -auto-approve -var 'run_id=$(or $(RUN_ID),$(shell cat DEFAULT_RUN_ID))' terraform
+	eval $$(assume-role testing); terraform destroy -auto-approve -var 'run_id=$(or $(RUN_ID),$(shell cat DEFAULT_RUN_ID))' terraform
 
 .PHONY: exit-status
 exit-status:
