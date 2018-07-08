@@ -45,17 +45,17 @@ install:
 
 jobs:
   include:
-    #- stage: Build Flink
-    #  script:
-    #    - git clone https://github.com/GJL/flink.git
-    #    - cd flink
-    #    - git checkout FLINK-9004
-    #    - mvn ${MAVEN_COMPILE_OPTIONS} clean package -pl flink-dist -am -DskipTests -Dfast -Dhadoop.version=2.8.3
-    #    - cd flink-dist/target/flink-*-bin/
-    #    - flink_dist=flink-${TRAVIS_BUILD_NUMBER}.tgz
-    #    - tar czf ${flink_dist} flink-*
-    #    - eval $(assume-role testing)
-    #    - aws s3 cp $flink_dist s3://flink-dists-204087123 --acl public-read
+    - stage: Build Flink
+      script:
+        - git clone --depth 50 --branch=FLINK-9004 https://github.com/GJL/flink.git
+        - cd flink
+        - git remote add upstream https://github.com/apache/flink.git && git fetch upstream master && git rebase FETCH_HEAD
+        - mvn ${MAVEN_COMPILE_OPTIONS} clean package -pl flink-dist -am -DskipTests -Dfast -Dhadoop.version=2.8.3
+        - cd flink-dist/target/flink-*-bin/
+        - flink_dist=flink-${TRAVIS_BUILD_NUMBER}.tgz
+        - tar czf ${flink_dist} flink-*
+        - eval $(assume-role testing)
+        - aws s3 cp $flink_dist s3://flink-dists-204087123 --acl public-read
     - stage: Jepsen
       env:
         - TEST_SUITE=yarn-session
