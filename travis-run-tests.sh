@@ -16,7 +16,7 @@ testrc=$?
 kill %1
 
 # Upload test results
-test_results_file=store-${TRAVIS_BUILD_NUMBER}-${TEST_SUITE}.tgz
+test_results_file=store-${TRAVIS_JOB_NUMBER}-${TEST_SUITE}.tgz
 tar -czf ${test_results_file} store/
 eval $(assume-role testing)
 aws s3 cp ${test_results_file} s3://flink-jepsen-test-results --acl public-read
