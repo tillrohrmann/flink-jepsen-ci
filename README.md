@@ -1,6 +1,6 @@
-# jepsen.flink automation tools
+# flink-jepsen-ci
 
-This project is a collection of configuration files to run the jepsen.flink
+This project is a collection of configuration files to run the flink-jepsen
 test suite on a real cluster deployed on AWS EC2 instances.
 
 ## Usage
