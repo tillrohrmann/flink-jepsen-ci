@@ -71,3 +71,10 @@ jobs:
         - TEST_SUITE=mesos-session
       script:
         - ./travis-run-tests.sh
+
+notifications:
+  slack:
+    rooms:
+      - secure: "lgu8TI+tD5m5Gr7nwojbDFU6zV4+3NMrySTgvS6OydEvdivKslgJpwt19RFUeGBmedXhOAv7G4BuoJgc5/zO4CLMHE1JWMONKq++IDP0ls+TvRPMhPMrx6vbHIS79nz/zunKgGcZ1wpqCvigzJ21GgOmUtA6Ji3qg6JfAgQXiFz7CUkp17PtieJo+m0k9GrQCMhwypV1uIYdW6eyxMMHCJYgJOSREhA4oDOGLQcAoC/43WYEAU6j51YMVp8Fo9JfmvG4EvSuCoxKkD+pB0Lv/QRuT3QS1UHf+j4tv6DvnskYoh/1vjkYj+thBRjTN0B2Z6swMH0aDTsBAJfWKHillK5aYBJW3ym7pm8KPrkcWH57tuNU2jlCNrLbFOlXOkELUjcUVZapnxjELQLz8SPrcL0n6xSCMF64o4jH60w3FAgMLZhqkjOHFM5SbumSQ1PH0YauSXnyd6T9Vy33pifSxcOC4Gk4b7V04ebZTejWxCidznVWsc/uT7Y7KuWZ8ZCQdk4bDC83YYW6f4LBfni7c33KNlj6u2CMSiIB+dKh/0qjGIRBh0hV4i89e41643F0yr9E+ejlUqvud3EJfjATVqyJ/DtIdm4EDgh2CSgcZtZlPg9kAnJt36S86sAGlmUz6GHO7A3qVjEmjBGQTs6Gg/93Pm1jDo1qzi6bZNmL6OM="
+    on_success: always
+    on_failure: always
