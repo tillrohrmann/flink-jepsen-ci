@@ -6,3 +6,7 @@ id_rsa.pub
 inventory/inventory
 terraform/terraform.tfvars
 store
+.DS_Store
+.idea
+.terraform
+
