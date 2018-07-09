@@ -66,11 +66,11 @@ jobs:
         - TEST_SUITE=yarn-job
       script:
         - ./travis-run-tests.sh
-    - stage: Jepsen
-      env:
-        - TEST_SUITE=mesos-session
-      script:
-        - ./travis-run-tests.sh
+    # - stage: Jepsen
+    #   env:
+    #     - TEST_SUITE=mesos-session
+    #   script:
+    #     - ./travis-run-tests.sh
 
 notifications:
   slack:
