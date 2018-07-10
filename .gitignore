@@ -9,4 +9,5 @@ store
 .DS_Store
 .idea
 .terraform
-
+terraform.tfstate
+terraform.tfstate.*
