@@ -47,9 +47,8 @@ jobs:
   include:
     - stage: Build Flink
       script:
-        - git clone --depth 50 --branch=FLINK-9004 https://github.com/GJL/flink.git
+        - git clone --depth 50 https://github.com/apache/flink.git
         - cd flink
-        - git remote add upstream https://github.com/apache/flink.git && git fetch upstream master && git rebase FETCH_HEAD
         - mvn ${MAVEN_COMPILE_OPTIONS} clean package -pl flink-dist -am -DskipTests -Dfast -Dhadoop.version=2.8.3
         - cd flink-dist/target/flink-*-bin/
         - flink_dist=flink-${TRAVIS_BUILD_NUMBER}.tgz

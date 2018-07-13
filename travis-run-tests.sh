@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 # Get test sources and build Flink job
-git clone --depth 50 --branch=FLINK-9004 https://github.com/GJL/flink.git
+git clone --depth 50 https://github.com/apache/flink.git
 cd flink/flink-end-to-end-tests/flink-datastream-allround-test
-git remote add upstream https://github.com/apache/flink.git && git fetch upstream master && git rebase FETCH_HEAD
 mvn ${MAVEN_COMPILE_OPTIONS} clean install -DskipTests -Dfast
 cp target/DataStreamAllroundTestProgram.jar ../../flink-jepsen/bin/
 cd ../../../
