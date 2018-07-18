@@ -58,11 +58,19 @@ jobs:
     - stage: Jepsen
       env:
         - TEST_SUITE=yarn-session
+        - TEST_RUN_COUNT=3
       script:
         - ./travis-run-tests.sh
     - stage: Jepsen
       env:
         - TEST_SUITE=yarn-job
+        - TEST_RUN_COUNT=1
+      script:
+        - ./travis-run-tests.sh
+    - stage: Jepsen
+      env:
+        - TEST_SUITE=yarn-job-kill-tm
+        - TEST_RUN_COUNT=8
       script:
         - ./travis-run-tests.sh
     # - stage: Jepsen
