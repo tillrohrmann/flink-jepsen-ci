@@ -9,7 +9,7 @@ variable "control_root_volume_size" {
 }
 
 variable "instance_type" {
-  default = "m4.xlarge"
+  default = "m4.large"
 }
 
 variable "nodes" {
