@@ -22,11 +22,15 @@ install:
   # Install Ansible
   - sudo pip install ansible --progress-bar=off
 
+  # Update package lists
+  - sudo apt-get update
+
   # Install assume-role tool
   - sudo apt-get install golang-go
   - go get -u github.com/remind101/assume-role
 
   # Install AWS CLI
+  - sudo apt-get remove python-urllib3
   - sudo pip install --upgrade awscli --progress-bar=off
 
   # Install boto
