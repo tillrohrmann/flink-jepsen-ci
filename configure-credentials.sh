@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 mkdir -p ~/.aws
 
 cat > ~/.aws/credentials <<EOF

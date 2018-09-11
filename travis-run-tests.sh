@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 # Get test sources and build Flink job
 git clone --depth 50 https://github.com/apache/flink.git
 cd flink/flink-end-to-end-tests/flink-datastream-allround-test
