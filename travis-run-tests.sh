@@ -12,7 +12,6 @@ cd ../../../
 # Run tests
 while sleep 9m; do echo "Still running ($SECONDS seconds)"; done &
 make run EXTRA_VARS="flink_url=\"https://s3.eu-central-1.amazonaws.com/flink-dists-204087123/flink-${TRAVIS_BUILD_NUMBER}.tgz\" test_suite=${TEST_SUITE} run_count=${TEST_RUN_COUNT}"
-#make run EXTRA_VARS="test_suite=${TEST_SUITE}"
 testrc=$?
 kill %1
 
