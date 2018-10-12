@@ -2,12 +2,10 @@
 
 set -euo pipefail
 
-# Get test sources and build Flink job
+# Get test sources & Flink test job
 git clone --depth 50 https://github.com/apache/flink.git
-cd flink/flink-end-to-end-tests/flink-datastream-allround-test
-mvn ${MAVEN_COMPILE_OPTIONS} clean install -DskipTests -Dfast
-cp target/DataStreamAllroundTestProgram.jar ../../flink-jepsen/bin/
-cd ../../../
+wget -O DataStreamAllroundTestProgram.jar https://s3.eu-central-1.amazonaws.com/flink-dists-204087123/DataStreamAllroundTestProgram-${TRAVIS_BUILD_NUMBER}.jar
+mv DataStreamAllroundTestProgram.jar flink/flink-jepsen/bin/
 
 # Run tests
 while sleep 9m; do echo "Still running ($SECONDS seconds)"; done &

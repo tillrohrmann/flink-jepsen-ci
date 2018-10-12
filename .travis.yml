@@ -53,12 +53,12 @@ jobs:
       script:
         - git clone --depth 50 https://github.com/apache/flink.git
         - cd flink
-        - mvn ${MAVEN_COMPILE_OPTIONS} clean package -pl flink-dist -am -DskipTests -Dfast -Dhadoop.version=2.8.3
-        - cd flink-dist/target/flink-*-bin/
+        - mvn ${MAVEN_COMPILE_OPTIONS} clean package -pl flink-dist,flink-end-to-end-tests/flink-datastream-allround-test -am -DskipTests -Dfast -Dhadoop.version=2.8.3
         - flink_dist=flink-${TRAVIS_BUILD_NUMBER}.tgz
-        - tar czf ${flink_dist} flink-*
+        - tar czvf ${flink_dist} -C flink-dist/target/flink-*-bin/ .
         - eval $(assume-role testing)
         - aws s3 cp $flink_dist s3://flink-dists-204087123 --acl public-read
+        - aws s3 cp flink-end-to-end-tests/flink-datastream-allround-test/target/DataStreamAllroundTestProgram.jar s3://flink-dists-204087123/DataStreamAllroundTestProgram-${TRAVIS_BUILD_NUMBER}.jar --acl public-read
     - stage: Jepsen
       env:
         - TEST_SUITE=yarn-session
