@@ -77,11 +77,18 @@ jobs:
         - TEST_RUN_COUNT=8
       script:
         - ./travis-run-tests.sh
-    # - stage: Jepsen
-    #   env:
-    #     - TEST_SUITE=mesos-session
-    #   script:
-    #     - ./travis-run-tests.sh
+    - stage: Jepsen
+      env:
+        - TEST_SUITE=mesos-session
+        - TEST_RUN_COUNT=3
+      script:
+        - ./travis-run-tests.sh
+    - stage: Jepsen
+      env:
+        - TEST_SUITE=standalone-session
+        - TEST_RUN_COUNT=1
+      script:
+        - ./travis-run-tests.sh
 
 notifications:
   slack:
