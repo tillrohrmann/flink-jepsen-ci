@@ -11,6 +11,7 @@ function init_jepsen_args {
 	jepsen_args=(--ha-storage-dir hdfs:///flink
 	--job-jar bin/DataStreamAllroundTestProgram.jar
 	--job-args "--environment.parallelism ${1} --state_backend.checkpoint_directory hdfs:///checkpoints --state_backend rocks --state_backend.rocks.incremental true"
+	--flink-config jobmanager.execution.failover-strategy=region
 	--nodes-file ~/nodes
 	--tarball ${tarball}
 	--username admin
